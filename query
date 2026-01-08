@@ -1,1 +1,251 @@
 
+/* =========================================================
+   E-COMMERCE SQL ANALYSIS PROJECT
+   Author : Akash P L
+   Purpose: Business-oriented SQL analysis for Data Analyst
+   Database: SQL Server
+   ========================================================= */
+
+/* =========================
+   CUSTOMER ANALYSIS
+   ========================= */
+
+-- Total number of customers
+SELECT COUNT(*) AS total_customers
+FROM [dbo].[customers];
+
+-- Customer count by city (descending)
+SELECT
+    city,
+    COUNT(*) AS total_customers
+FROM [dbo].[customers]
+GROUP BY city
+ORDER BY total_customers DESC;
+
+-- Customer growth by year and month
+SELECT
+    YEAR(created_at) AS yr,
+    MONTH(created_at) AS mn,
+    COUNT(*) AS customers
+FROM [dbo].[customers]
+GROUP BY YEAR(created_at), MONTH(created_at)
+ORDER BY yr, mn;
+
+-- Top 5 cities by customer count
+SELECT TOP 5
+    city,
+    COUNT(*) AS customers
+FROM [dbo].[customers]
+GROUP BY city
+ORDER BY customers DESC;
+
+
+/* =========================
+   PRODUCT ANALYSIS
+   ========================= */
+
+-- Total number of products
+SELECT COUNT(*) AS total_products
+FROM [dbo].[products];
+
+-- Product count by category
+SELECT
+    category,
+    COUNT(*) AS product_count
+FROM [dbo].[products]
+GROUP BY category;
+
+-- Average product price per category
+SELECT
+    category,
+    AVG(price) AS avg_price
+FROM [dbo].[products]
+GROUP BY category;
+
+-- Most expensive product
+SELECT TOP 1 *
+FROM [dbo].[products]
+ORDER BY price DESC;
+
+-- Products never ordered
+SELECT
+    p.product_id,
+    p.product_name
+FROM [dbo].[products] p
+LEFT JOIN [dbo].[order_items] oi
+    ON p.product_id = oi.product_id
+WHERE oi.product_id IS NULL;
+
+
+/* =========================
+   ORDER ANALYSIS
+   ========================= */
+
+-- Total number of orders
+SELECT COUNT(*) AS total_orders
+FROM [dbo].[orders];
+
+-- Orders by year and month
+SELECT
+    YEAR(order_date) AS yr,
+    MONTH(order_date) AS mn,
+    COUNT(*) AS orders
+FROM [dbo].[orders]
+GROUP BY YEAR(order_date), MONTH(order_date)
+ORDER BY yr, mn;
+
+-- Customers with more than 3 orders
+SELECT
+    customer_id,
+    COUNT(*) AS total_orders
+FROM [dbo].[orders]
+GROUP BY customer_id
+HAVING COUNT(*) > 3;
+
+-- Number of items per order
+SELECT
+    o.order_id,
+    COUNT(oi.order_id) AS items
+FROM [dbo].[orders] o
+JOIN [dbo].[order_items] oi
+    ON o.order_id = oi.order_id
+GROUP BY o.order_id;
+
+-- Average number of items per order
+SELECT AVG(item_count) AS avg_items_per_order
+FROM (
+    SELECT
+        order_id,
+        COUNT(*) AS item_count
+    FROM [dbo].[order_items]
+    GROUP BY order_id
+) t;
+
+-- Orders that were never returned
+SELECT
+    o.order_id
+FROM [dbo].[orders] o
+LEFT JOIN [dbo].[returns] r
+    ON r.order_id = o.order_id
+WHERE r.return_id IS NULL;
+
+
+/* =========================
+   SALES & REVENUE ANALYSIS
+   ========================= */
+
+-- Total revenue collected
+SELECT SUM(amount) AS total_revenue
+FROM [dbo].[payments];
+
+-- Monthly revenue trend
+SELECT
+    YEAR(payment_date) AS yr,
+    MONTH(payment_date) AS mn,
+    SUM(amount) AS revenue
+FROM [dbo].[payments]
+GROUP BY YEAR(payment_date), MONTH(payment_date)
+ORDER BY yr, mn;
+
+-- Highest single payment
+SELECT TOP 1 *
+FROM [dbo].[payments]
+ORDER BY amount DESC;
+
+-- Total spending per customer
+SELECT
+    o.customer_id,
+    SUM(p.amount) AS total_spent
+FROM [dbo].[orders] o
+JOIN [dbo].[payments] p
+    ON o.order_id = p.order_id
+GROUP BY o.customer_id;
+
+-- Top 5 highest spending customers
+SELECT TOP 5
+    o.customer_id,
+    SUM(p.amount) AS total_spent
+FROM [dbo].[orders] o
+JOIN [dbo].[payments] p
+    ON o.order_id = p.order_id
+GROUP BY o.customer_id
+ORDER BY total_spent DESC;
+
+-- Customer ranking based on total spend
+SELECT
+    o.customer_id,
+    SUM(p.amount) AS spent,
+    RANK() OVER (ORDER BY SUM(p.amount) DESC) AS rnk
+FROM [dbo].[orders] o
+JOIN [dbo].[payments] p
+    ON p.order_id = o.order_id
+GROUP BY o.customer_id;
+
+
+/* =========================
+   PRODUCT SALES PERFORMANCE
+   ========================= */
+
+-- Most sold product by quantity
+SELECT TOP 1
+    product_id,
+    SUM(quantity) AS total_quantity
+FROM [dbo].[order_items]
+GROUP BY product_id
+ORDER BY total_quantity DESC;
+
+-- Total units sold per product
+SELECT
+    product_id,
+    SUM(quantity) AS total_units
+FROM [dbo].[order_items]
+GROUP BY product_id;
+
+
+/* =========================
+   RETURNS ANALYSIS
+   ========================= */
+
+-- Customers who made returns
+SELECT
+    c.customer_id,
+    c.customer_name
+FROM [dbo].[customers] c
+JOIN [dbo].[orders] o
+    ON c.customer_id = o.customer_id
+JOIN [dbo].[returns] r
+    ON o.order_id = r.order_id;
+
+-- Most common return reason
+SELECT TOP 1
+    reason,
+    COUNT(*) AS cnt
+FROM [dbo].[returns]
+GROUP BY reason
+ORDER BY cnt DESC;
+
+-- Total revenue lost due to returns
+SELECT SUM(p.amount) AS lost_revenue
+FROM [dbo].[payments] p
+JOIN [dbo].[returns] r
+    ON r.order_id = p.order_id;
+
+
+/* =========================
+   CUSTOMER BEHAVIOR INSIGHTS
+   ========================= */
+
+-- Customers with more than one order
+SELECT
+    customer_id
+FROM [dbo].[orders]
+GROUP BY customer_id
+HAVING COUNT(*) > 1;
+
+-- Customers who never placed an order
+SELECT
+    c.customer_id
+FROM [dbo].[customers] c
+LEFT JOIN [dbo].[orders] o
+    ON c.customer_id = o.customer_id
+WHERE o.customer_id IS NULL;
