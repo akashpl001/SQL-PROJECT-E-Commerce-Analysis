@@ -1,0 +1,352 @@
+-- Create database
+CREATE DATABASE mysql_sales_analytics;
+USE mysql_sales_analytics;
+
+-- ==============================
+-- CUSTOMERS
+-- ==============================
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    email VARCHAR(100),
+    city VARCHAR(50),
+    created_at DATE
+);
+
+-- ==============================
+-- PRODUCTS
+-- ==============================
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(100),
+    category VARCHAR(50),   -- VARCHAR to avoid conversion errors
+    price DECIMAL(10,2)
+);
+
+-- ==============================
+-- ORDERS
+-- ==============================
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- ==============================
+-- ORDER ITEMS
+-- ==============================
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+-- ==============================
+-- PAYMENTS
+-- ==============================
+CREATE TABLE payments (
+    payment_id INT PRIMARY KEY,
+    order_id INT,
+    payment_date DATE,
+    payment_method VARCHAR(30),
+    payment_status VARCHAR(20),
+    amount DECIMAL(10,2),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+-- ==============================
+-- RETURNS
+-- ==============================
+CREATE TABLE returns (
+    return_id INT PRIMARY KEY,
+    order_id INT,
+    return_date DATE,
+    reason VARCHAR(100),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+-- ==============================
+-- REFUNDS
+-- ==============================
+CREATE TABLE refunds (
+    refund_id INT PRIMARY KEY,
+    return_id INT,
+    refund_date DATE,
+    refund_method VARCHAR(30),
+    refund_status VARCHAR(20),
+    refund_amount DECIMAL(10,2),
+    FOREIGN KEY (return_id) REFERENCES returns(return_id)
+);
+
+
+INSERT INTO customers VALUES
+(1,'Rahul Sharma','rahul@gmail.com','Delhi','2022-12-01'),
+(2,'Anita Verma','anita@gmail.com','Mumbai','2022-12-03'),
+(3,'Suresh Kumar','suresh@gmail.com','Chennai','2022-12-05'),
+(4,'Neha Singh','neha@gmail.com','Bangalore','2022-12-07'),
+(5,'Amit Patel','amit@gmail.com','Ahmedabad','2022-12-09'),
+(6,'Pooja Mehta','pooja@gmail.com','Pune','2022-12-11'),
+(7,'Vikas Rao','vikas@gmail.com','Hyderabad','2022-12-13'),
+(8,'Kiran Das','kiran@gmail.com','Kolkata','2022-12-15'),
+(9,'Sneha Iyer','sneha@gmail.com','Coimbatore','2022-12-17'),
+(10,'Rohit Nair','rohit@gmail.com','Kochi','2022-12-19'),
+
+(11,'Manish Gupta','manish@gmail.com','Delhi','2022-12-21'),
+(12,'Priya Shah','priya@gmail.com','Surat','2022-12-23'),
+(13,'Arjun Malhotra','arjun@gmail.com','Noida','2022-12-25'),
+(14,'Divya N','divya@gmail.com','Mysore','2022-12-27'),
+(15,'Karthik S','karthik@gmail.com','Trichy','2022-12-29'),
+(16,'Meena R','meena@gmail.com','Madurai','2023-01-02'),
+(17,'Sanjay Jain','sanjay@gmail.com','Jaipur','2023-01-04'),
+(18,'Ritu Khanna','ritu@gmail.com','Chandigarh','2023-01-06'),
+(19,'Nikhil B','nikhil@gmail.com','Indore','2023-01-08'),
+(20,'Swathi P','swathi@gmail.com','Vizag','2023-01-10'),
+
+(21,'Ajay Menon','ajay@gmail.com','Trivandrum','2023-01-12'),
+(22,'Lakshmi N','lakshmi@gmail.com','Salem','2023-01-14'),
+(23,'Ramesh K','ramesh@gmail.com','Erode','2023-01-16'),
+(24,'Anjali S','anjali@gmail.com','Thrissur','2023-01-18'),
+(25,'Vivek A','vivek@gmail.com','Bhopal','2023-01-20'),
+(26,'Harsha V','harsha@gmail.com','Warangal','2023-01-22'),
+(27,'Deepak L','deepak@gmail.com','Raipur','2023-01-24'),
+(28,'Sunita D','sunita@gmail.com','Nagpur','2023-01-26'),
+(29,'Mohit G','mohit@gmail.com','Gurgaon','2023-01-28'),
+(30,'Pankaj T','pankaj@gmail.com','Faridabad','2023-01-30'),
+
+(31,'Shalini K','shalini@gmail.com','Meerut','2023-02-02'),
+(32,'Ravi C','ravi@gmail.com','Vellore','2023-02-04'),
+(33,'Ankita M','ankita@gmail.com','Ujjain','2023-02-06'),
+(34,'Siddharth R','sid@gmail.com','Bangalore','2023-02-08'),
+(35,'Preeti J','preeti@gmail.com','Patna','2023-02-10'),
+(36,'Yash P','yash@gmail.com','Vadodara','2023-02-12'),
+(37,'Abhishek S','abhishek@gmail.com','Kanpur','2023-02-14'),
+(38,'Nandini H','nandini@gmail.com','Hubli','2023-02-16'),
+(39,'Tarun V','tarun@gmail.com','Udaipur','2023-02-18'),
+(40,'Isha M','isha@gmail.com','Amritsar','2023-02-20');
+
+INSERT INTO products VALUES
+(101,'Laptop','Electronics',55000),
+(102,'Smartphone','Electronics',32000),
+(103,'Tablet','Electronics',28000),
+(104,'Monitor','Electronics',18000),
+(105,'Printer','Electronics',9000),
+
+(106,'Keyboard','Accessories',1500),
+(107,'Mouse','Accessories',800),
+(108,'Headphones','Accessories',2500),
+(109,'Webcam','Accessories',4000),
+(110,'Speaker','Accessories',3500),
+
+(111,'Office Chair','Furniture',7000),
+(112,'Desk','Furniture',12000),
+(113,'Bookshelf','Furniture',6000),
+(114,'Sofa','Furniture',25000),
+(115,'Coffee Table','Furniture',8000),
+
+(116,'Router','Electronics',4500),
+(117,'Hard Disk','Electronics',6500),
+(118,'Pendrive','Electronics',1200),
+(119,'UPS','Electronics',11000),
+(120,'Projector','Electronics',42000),
+
+(121,'Mobile Stand','Accessories',500),
+(122,'Laptop Bag','Accessories',2200),
+(123,'Power Bank','Accessories',3000),
+(124,'Charger','Accessories',1800),
+(125,'Extension Box','Accessories',1400),
+
+(126,'Whiteboard','Office',3500),
+(127,'Marker Set','Office',900),
+(128,'Notebook Pack','Office',1200),
+(129,'Pen Stand','Office',600),
+(130,'Office Lamp','Office',2700),
+
+(131,'Tablet Cover','Accessories',1600),
+(132,'Screen Cleaner','Accessories',700),
+(133,'SSD','Electronics',8500),
+(134,'Graphics Card','Electronics',48000),
+(135,'CPU Cabinet','Electronics',39000),
+
+(136,'Cooling Pad','Accessories',2500),
+(137,'Mouse Pad','Accessories',450),
+(138,'Earbuds','Accessories',5200),
+(139,'Smartwatch','Electronics',15000),
+(140,'Fitness Band','Electronics',9000);
+
+INSERT INTO orders VALUES
+(201,1,'2023-01-05'),
+(202,2,'2023-01-08'),
+(203,3,'2023-01-12'),
+(204,4,'2023-01-15'),
+(205,5,'2023-01-20'),
+
+(206,6,'2023-02-02'),
+(207,7,'2023-02-05'),
+(208,8,'2023-02-09'),
+(209,9,'2023-02-15'),
+(210,10,'2023-02-20'),
+
+(211,11,'2023-03-01'),
+(212,12,'2023-03-04'),
+(213,13,'2023-03-08'),
+(214,14,'2023-03-12'),
+(215,15,'2023-03-15'),
+
+(216,16,'2023-03-20'),
+(217,17,'2023-04-01'),
+(218,18,'2023-04-05'),
+(219,19,'2023-04-10'),
+(220,20,'2023-04-15'),
+
+(221,21,'2023-05-01'),
+(222,22,'2023-05-06'),
+(223,23,'2023-05-10'),
+(224,24,'2023-05-14'),
+(225,25,'2023-05-20'),
+
+(226,26,'2023-06-02'),
+(227,27,'2023-06-06'),
+(228,28,'2023-06-10'),
+(229,29,'2023-06-15'),
+(230,30,'2023-06-20'),
+
+(231,31,'2023-07-01'),
+(232,32,'2023-07-05'),
+(233,33,'2023-07-10'),
+(234,34,'2023-07-15'),
+(235,35,'2023-07-20'),
+
+(236,36,'2023-08-01'),
+(237,37,'2023-08-06'),
+(238,38,'2023-08-10'),
+(239,39,'2023-08-15'),
+(240,40,'2023-08-20');
+
+INSERT INTO order_items VALUES
+-- Orders 201–205
+(301,201,101,1),(302,201,108,2),
+(303,202,102,1),(304,202,107,1),
+(305,203,104,1),(306,203,109,1),
+(307,204,111,1),(308,204,106,2),
+(309,205,112,1),(310,205,121,2),
+
+-- Orders 206–210
+(311,206,103,1),(312,206,108,1),
+(313,207,116,1),(314,207,122,1),
+(315,208,117,1),(316,208,107,2),
+(317,209,118,3),(318,209,121,1),
+(319,210,120,1),(320,210,109,1),
+
+-- Orders 211–215
+(321,211,131,1),(322,211,107,2),
+(323,212,139,1),(324,212,108,1),
+(325,213,140,1),(326,213,121,1),
+(327,214,133,1),(328,214,132,2),
+(329,215,134,1),(330,215,106,1),
+
+-- Orders 216–220
+(331,216,135,1),(332,216,107,2),
+(333,217,136,1),(334,217,137,2),
+(335,218,138,1),(336,218,121,1),
+(337,219,139,1),(338,219,132,1),
+(339,220,140,1),(340,220,107,2),
+
+-- Orders 221–225
+(341,221,101,1),(342,221,108,1),
+(343,222,102,1),(344,222,121,2),
+(345,223,103,1),(346,223,107,1),
+(347,224,104,1),(348,224,109,1),
+(349,225,111,1),(350,225,106,2),
+
+-- Orders 226–230
+(351,226,116,1),(352,226,122,1),
+(353,227,117,1),(354,227,107,2),
+(355,228,118,2),(356,228,121,1),
+(357,229,134,1),(358,229,132,1),
+(359,230,120,1),(360,230,108,1),
+
+-- Orders 231–235
+(361,231,101,1),(362,231,103,1),
+(363,232,102,1),(364,232,107,2),
+(365,233,104,1),(366,233,121,1),
+(367,234,111,1),(368,234,106,2),
+(369,235,139,1),(370,235,132,1),
+
+-- Orders 236–240
+(371,236,133,1),(372,236,107,2),
+(373,237,134,1),(374,237,121,1),
+(375,238,138,1),(376,238,132,1),
+(377,239,140,1),(378,239,107,2),
+(379,240,112,1),(380,240,106,2);
+
+INSERT INTO payments VALUES
+(401,201,'2023-01-05','Credit Card','Completed',60000),
+(402,202,'2023-01-08','UPI','Completed',33600),
+(403,203,'2023-01-12','Debit Card','Completed',20500),
+(404,204,'2023-01-15','Net Banking','Completed',10000),
+(405,205,'2023-01-20','Credit Card','Completed',13600),
+
+(406,206,'2023-02-02','UPI','Completed',30500),
+(407,207,'2023-02-05','Credit Card','Completed',36500),
+(408,208,'2023-02-09','Debit Card','Completed',7800),
+(409,209,'2023-02-15','UPI','Completed',6600),
+(410,210,'2023-02-20','Net Banking','Completed',51000),
+
+(411,211,'2023-03-01','Credit Card','Completed',6100),
+(412,212,'2023-03-04','UPI','Completed',19000),
+(413,213,'2023-03-08','Debit Card','Completed',16500),
+(414,214,'2023-03-12','Net Banking','Completed',9900),
+(415,215,'2023-03-15','Credit Card','Completed',50500),
+
+(416,216,'2023-03-20','UPI','Completed',41000),
+(417,217,'2023-04-01','Credit Card','Completed',2950),
+(418,218,'2023-04-05','Debit Card','Completed',6700),
+(419,219,'2023-04-10','UPI','Completed',15700),
+(420,220,'2023-04-15','Net Banking','Completed',10500),
+
+(421,221,'2023-05-01','Credit Card','Completed',60000),
+(422,222,'2023-05-06','UPI','Completed',34500),
+(423,223,'2023-05-10','Debit Card','Completed',30500),
+(424,224,'2023-05-14','Net Banking','Completed',27000),
+(425,225,'2023-05-20','Credit Card','Completed',10000),
+
+(426,226,'2023-06-02','UPI','Completed',18000),
+(427,227,'2023-06-06','Debit Card','Completed',32000),
+(428,228,'2023-06-10','Credit Card','Completed',4500),
+(429,229,'2023-06-15','UPI','Completed',52000),
+(430,230,'2023-06-20','Net Banking','Completed',38000),
+
+(431,231,'2023-07-01','Credit Card','Completed',41000),
+(432,232,'2023-07-05','UPI','Completed',15500),
+(433,233,'2023-07-10','Debit Card','Completed',8400),
+(434,234,'2023-07-15','Credit Card','Completed',9000),
+(435,235,'2023-07-20','Net Banking','Completed',24000),
+
+(436,236,'2023-08-01','UPI','Completed',31000),
+(437,237,'2023-08-06','Credit Card','Completed',12500),
+(438,238,'2023-08-10','Debit Card','Completed',7700),
+(439,239,'2023-08-15','UPI','Completed',9600),
+(440,240,'2023-08-20','Net Banking','Completed',18500);
+
+INSERT INTO returns
+(return_id, order_id, return_date, reason)
+VALUES
+(501,203,'2023-01-18','Damaged product'),
+(502,207,'2023-02-10','Wrong item delivered'),
+(503,212,'2023-03-08','Product not needed'),
+(504,218,'2023-04-08','Defective item'),
+(505,224,'2023-05-18','Late delivery'),
+(506,229,'2023-06-18','Quality issue'),
+(507,235,'2023-07-25','Wrong size'),
+(508,238,'2023-08-15','Damaged packaging'),
+
+-- Rejected (product missing)
+(509,205,'2023-01-25','Product missing'),
+(510,214,'2023-03-18','Product missing'),
+(511,221,'2023-05-10','Used product'),
+(512,226,'2023-06-10','Product missing'),
+(513,232,'2023-07-12','Outside return window');
